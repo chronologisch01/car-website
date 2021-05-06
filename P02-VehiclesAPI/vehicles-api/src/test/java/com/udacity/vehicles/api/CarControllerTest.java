@@ -4,6 +4,8 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -97,6 +99,8 @@ public class CarControllerTest {
          *   below (the vehicle will be the first in the list).
          */
         mvc.perform(get("/cars").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+
+        verify(carService, times(1)).list();
     }
 
     /**
@@ -111,6 +115,8 @@ public class CarControllerTest {
          */
         Car car = getCar();
         mvc.perform(get("/cars/{id}", car.getId()).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk());
+
+        verify(carService, times(1)).list();
     }
 
     /**
@@ -120,8 +126,10 @@ public class CarControllerTest {
     @Test
     public void deleteCar() throws Exception {
         Car car = getCar();
-        mvc.perform(delete("/cars/?vehicleId={id}", car.getId()))
-                .andExpect(status().isOk());
+        mvc.perform(delete(new URI("/cars/1")).contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNoContent());
+
+        verify(carService, times(1)).delete(1L);
     }
 
     /**

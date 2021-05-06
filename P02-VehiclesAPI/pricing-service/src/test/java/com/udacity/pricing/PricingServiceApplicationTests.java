@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -31,6 +33,7 @@ public class PricingServiceApplicationTests {
 		mockMvc.perform(MockMvcRequestBuilders.get("/services/price?vehicleId=1")
 				.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
+		verify(pricingService, times(1)).getPrice(1L);
 	}
 
 
