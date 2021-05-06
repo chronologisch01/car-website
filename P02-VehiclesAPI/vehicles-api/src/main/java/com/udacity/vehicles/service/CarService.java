@@ -1,9 +1,12 @@
 package com.udacity.vehicles.service;
 
+import com.udacity.vehicles.client.maps.MapsClient;
+import com.udacity.vehicles.client.prices.PriceClient;
 import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.domain.car.CarRepository;
-import java.util.List;
+import java.util.*;
 import org.springframework.stereotype.Service;
+
 
 /**
  * Implements the car service create, read, update or delete
@@ -14,12 +17,17 @@ import org.springframework.stereotype.Service;
 public class CarService {
 
     private final CarRepository repository;
+    private final MapsClient mapsClient;
+    private final PriceClient priceClient;
 
-    public CarService(CarRepository repository) {
+
+    public CarService(CarRepository repository, MapsClient mapsClient, PriceClient priceClient) {
         /**
          * TODO: Add the Maps and Pricing Web Clients you create
          *   in `VehiclesApiApplication` as arguments and set them here.
          */
+        this.mapsClient= mapsClient;
+        this.priceClient=priceClient;
         this.repository = repository;
     }
 
@@ -42,7 +50,13 @@ public class CarService {
          *   If it does not exist, throw a CarNotFoundException
          *   Remove the below code as part of your implementation.
          */
-        Car car = new Car();
+        Optional<Car> optionalCar = repository.findById(id);
+        if(optionalCar.isPresent()){
+            Car car = optionalCar.get();
+            car.setPrice(priceClient.getPrice(id));
+            car.setLocation(mapsClient.getAddress(car.getLocation()));
+            return car;
+        }
 
         /**
          * TODO: Use the Pricing Web client you create in `VehiclesApiApplication`
@@ -63,7 +77,7 @@ public class CarService {
          */
 
 
-        return car;
+        return null;
     }
 
     /**
@@ -89,6 +103,12 @@ public class CarService {
      * @param id the ID number of the car to delete
      */
     public void delete(Long id) {
+        Optional<Car> optionalCar = this.repository.findById(id);
+        if(optionalCar.isPresent()){
+            this.repository.delete(optionalCar.get());
+        }else {
+            throw new CarNotFoundException("Car not found, can't be deleted");
+        }
         /**
          * TODO: Find the car by ID from the `repository` if it exists.
          *   If it does not exist, throw a CarNotFoundException

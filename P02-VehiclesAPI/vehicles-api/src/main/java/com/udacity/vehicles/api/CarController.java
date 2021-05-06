@@ -63,7 +63,7 @@ class CarController {
          * TODO: Use the `assembler` on that car and return the resulting output.
          *   Update the first line as part of the above implementing.
          */
-        return assembler.toResource(new Car());
+        return assembler.toResource(this.carService.findById(id));
     }
 
     /**
@@ -79,7 +79,10 @@ class CarController {
          * TODO: Use the `assembler` on that saved car and return as part of the response.
          *   Update the first line as part of the above implementing.
          */
-        Resource<Car> resource = assembler.toResource(new Car());
+
+        Car ncar = this.carService.save(car);
+
+        Resource<Car> resource = assembler.toResource(ncar);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
 
@@ -97,8 +100,19 @@ class CarController {
          * TODO: Use the `assembler` on that updated car and return as part of the response.
          *   Update the first line as part of the above implementing.
          */
-        Resource<Car> resource = assembler.toResource(new Car());
+        Car ncar = this.carService.save(car);
+
+        Resource<Car> resource = assembler.toResource(ncar);
         return ResponseEntity.ok(resource);
+    }
+
+    @DeleteMapping("/{id}")
+    ResponseEntity<?> delete(@PathVariable Long id) {
+        /**
+         * TODO: Use the Car Service to delete the requested vehicle.
+         */
+        this.carService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -106,11 +120,5 @@ class CarController {
      * @param id The ID number of the vehicle to remove.
      * @return response that the related vehicle is no longer in the system
      */
-    @DeleteMapping("/{id}")
-    ResponseEntity<?> delete(@PathVariable Long id) {
-        /**
-         * TODO: Use the Car Service to delete the requested vehicle.
-         */
-        return ResponseEntity.noContent().build();
-    }
+
 }
